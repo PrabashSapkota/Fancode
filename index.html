@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancode Live Matches</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   <style>
+    /* Custom Scrollbar Styles */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #1a0015; border-radius: 12px; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(45deg, #ff007a, #9b00ff); border-radius: 12px; }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(45deg, #ff4da6, #b266ff); }
+
+    /* Base Body Styles for consistency */
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #150010 0%, #1a0015 100%);
+        color: #e0e0e0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Shared Component Styles */
+    .video-player-shadow, .video-details-shadow, .live-chat-shadow, .buttons-section-shadow {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+        border-radius: 1.5rem;
+        background: #2a0322;
+    }
+    .video-player-shadow { border: 6px solid #2a0322; transition: transform 0.3s ease; }
+    .video-player-shadow:hover { transform: scale(1.02); }
+    .animated-button {
+        background: linear-gradient(45deg, #ff007a, #9b00ff);
+        transition: all 0.4s ease;
+        border-radius: 9999px;
+        padding: 0.75rem 1.5rem;
+    }
+    .animated-button:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(255, 0, 122, 0.4); background: linear-gradient(45deg, #ff4da6, #b266ff); }
+    .loading-overlay {
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(21, 0, 16, 0.95);
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        z-index: 999;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .loading-overlay.active { opacity: 1; visibility: visible; }
+    .spinner {
+        width: 80px; height: 80px;
+        border: 8px solid transparent;
+        border-top-color: #ff007a; border-right-color: #9b00ff;
+        border-radius: 50%;
+        animation: spin 1.2s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+        color: #e0e0e0;
+        font-size: 1.5rem; font-weight: 600;
+        margin-top: 1.5rem;
+        animation: pulse-text 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-text { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
+
+    /* Main Container & Content */
+    .blur-overlay {
+        display: flex; flex-direction: column;
+        gap: 1.5rem; padding: 2rem;
+        background: rgba(21, 0, 16, 0.8);
+        backdrop-filter: blur(10px);
+        min-height: 100vh;
+        width: 100%; box-sizing: border-box;
+    }
+    .main-content {
+        display: none; padding: 1rem; width: 100%; box-sizing: border-box;
+        flex-grow: 1;
+    }
+    .main-content-wrapper {
+        width: 100%;
+        padding: 2rem;
+        background: #1e0117;
+        border-radius: 1rem;
+        box-sizing: border-box;
+    }
+    .matches-container {
+        display: grid;
+        width: 100%; max-width: 100%;
+        margin: 0 auto; box-sizing: border-box;
+    }
+    .section-title {
+        font-size: 2.25rem; font-weight: 800;
+        background: linear-gradient(45deg, #ff007a, #9b00ff);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        text-align: center; margin-bottom: 1.5rem;
+        animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Match Card Styles */
+    .match-card {
+        background: linear-gradient(135deg, #2a0322 0%, #3a042f 100%);
+        border-radius: 1.25rem; padding: 1rem;
+        display: flex; flex-direction: column; gap: 0.75rem;
+        border: 1px solid #ff007a;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        text-align: center; position: relative; overflow: hidden;
+    }
+    .match-card:hover { transform: translateY(-8px); box-shadow: 0 8px 24px rgba(255, 0, 122, 0.5); }
+    .match-card-header {
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; color: #e0e0e0;
+        background: rgba(255, 0, 122, 0.2);
+        padding: 0.5rem; border-radius: 0.75rem;
+    }
+    .live-indicator { width: 0.7rem; height: 0.7rem; background-color: #ff4d4d; border-radius: 50%; margin-right: 0.5rem; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.8); } 70% { box-shadow: 0 0 0 12px rgba(255, 77, 77, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); } }
+    .match-card img {
+        width: 100%; height: 140px;
+        object-fit: cover; border-radius: 0.75rem;
+        border: 2px solid #ff007a; transition: transform 0.3s ease;
+    }
+    .match-card:hover img { transform: scale(1.05); }
+    .match-card-details { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+    .match-card h3 {
+        font-size: 1.25rem; font-weight: 700;
+        margin: 0; color: #ffffff;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        overflow: hidden; text-overflow: ellipsis;
+        line-height: 1.4; max-height: 3.5em;
+    }
+    .match-card .match-info { font-size: 0.85rem; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .match-card button { padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; border-radius: 9999px; align-self: center; width: fit-content; }
+    .match-card .upcoming-info {
+        font-size: 0.9rem; color: #e0e0e0;
+        background: linear-gradient(45deg, #ff007a, #9b00ff);
+        padding: 0.75rem 1.5rem; border-radius: 9999px;
+        text-align: center; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .error-message {
+        color: #ff4d4d; font-size: 1.1rem; text-align: center;
+        padding: 1rem; background: rgba(255, 77, 77, 0.2);
+        border-radius: 0.75rem;
+    }
+
+    /* Responsive adjustments for the main content area */
+    .live-chat-shadow {
+        display: flex; flex-direction: column;
+        height: 100%; /* Default height for desktop */
+        border: 2px solid #3a042f;
+    }
+
+    .live-chat-shadow .flex-grow {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .live-chat-shadow iframe {
+        width: 100%; height: 100%; border: none;
+    }
+
+    /* Extra small devices (phones, 320px and up) */
+    @media (max-width: 480px) {
+        .section-title { font-size: 1.5rem; margin-bottom: 1rem; }
+        .main-content-wrapper, .blur-overlay { padding: 0.5rem; }
+        .match-card h3 { font-size: 1rem; }
+        .match-card .match-info { font-size: 0.75rem; }
+        .match-card button, .match-card .upcoming-info { padding: 0.5rem 1rem; font-size: 0.8rem; }
+        .video-details-shadow { padding: 1rem; }
+        #matchTitle { font-size: 1.25rem; }
+        .live-chat-shadow { height: 350px; }
+        .matches-container { grid-template-columns: 2fr; gap: 0.75rem; }
+    }
+
+    /* Small devices (tablets, 481px to 767px) */
+    @media (min-width: 481px) and (max-width: 767px) {
+        .section-title { font-size: 2rem; }
+        .main-content-wrapper, .blur-overlay { padding: 1rem; }
+        .matches-container { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        .live-chat-shadow { height: 450px; }
+        .spinner { width: 50px; height: 50px; border-width: 6px; }
+        .loading-text { font-size: 1.25rem; }
+    }
+
+    /* Medium devices (landscape tablets and small desktops, 768px to 1023px) */
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .section-title { font-size: 2.25rem; }
+        .main-content-wrapper, .blur-overlay { padding: 1.5rem; }
+        .matches-container { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+        .live-chat-shadow { height: 600px; }
+    }
+
+    /* Large devices (desktops, 1024px and up) */
+    @media (min-width: 1024px) {
+        .section-title { font-size: 2.5rem; }
+        .main-content-wrapper, .blur-overlay { padding: 2rem; }
+        .matches-container { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        .live-chat-shadow { height: calc(100vh - 120px); max-height: 900px; }
+    }
+</style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div class="blur-overlay" id="blurOverlay">
+        <h4 class="section-title">Live Matches</h4>
+        <div id="liveMatches" class="matches-container"></div>
+        <h4 class="section-title mt-8">Upcoming Matches</h4>
+        <div id="upcomingMatches" class="matches-container"></div>
+    </div>
+
+    <main class="flex-grow main-content" id="mainContent">
+        <div class="w-full main-content-wrapper">
+            <hr class="border-t border-[#3a042f] mb-6 w-full mx-auto" />
+            <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex-1 lg:w-2/3">
+                    <div class="aspect-video bg-[#22021c] rounded-2xl overflow-hidden video-player-shadow relative">
+                        <div class="loading-overlay" id="loadingOverlay">
+                            <div class="spinner"></div>
+                            <span class="loading-text">Loading Stream...</span>
+                        </div>
+                        <iframe allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full" frameborder="0" id="mainVideoPlayer" src="" title="Main Video Player"></iframe>
+                    </div>
+                    <div class="bg-[#2a0322] p-6 rounded-xl video-details-shadow mt-4">
+                        <h1 class="text-3xl font-bold text-white mb-4" id="matchTitle">🔴 Select a Match</h1>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <img alt="Channel Avatar" class="w-12 h-12 rounded-full mr-4 border-2 border-[#ff007a]" onerror="this.onerror=null;this.src='https://placehold.co/40x40/5a064b/ffffff?text=C';" src="https://i.postimg.cc/bJTrv4Xx/letter-b.png" />
+                                <div class="flex flex-col">
+                                    <p class="font-semibold text-xl text-white">BinTv.fun</p>
+                                </div>
+                            </div>
+                            <button class="animated-button text-white font-semibold">
+                                <p><span id="count">0</span> Viewers</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/3">
+                    <div class="bg-[#2a0322] p-6 rounded-xl flex flex-col live-chat-shadow">
+                        <div class="flex-grow rounded-lg overflow-hidden bg-[#1f0119] border border-[#ff007a]">
+                            <iframe allowfullscreen class="w-full h-full" frameborder="0" src="https://thisisliechatf.netlify.app/"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-t border-[#3a042f] mt-6 w-full mx-auto" />
+        </div>
+    </main>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const id = 'fancodelivehejeje';
+        const viewerCountElement = document.getElementById('count');
+        const socket = io('wss://96-4.jdx3.org', { query: { id } });
+
+        socket.on('updateViewCount', (data) => {
+            if (data.id === id) {
+                viewerCountElement.textContent = data.viewCount;
+            }
+        });
+
+        const JSON_URL = 'https://raw.githubusercontent.com/Jitendraunatti/fancode/refs/heads/main/data/fancode.json';
+        const STREAM_PREFIX = 'https://playerhobintvko111.netlify.app/?url=https://sonta.allinonereborn.xyz/sony/stream_proxy.php?url=';
+        
+        const blurOverlay = document.getElementById('blurOverlay');
+        const mainContent = document.getElementById('mainContent');
+        const mainVideoPlayer = document.getElementById('mainVideoPlayer');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const matchTitle = document.getElementById('matchTitle');
+        const titleElement = document.querySelector('title');
+
+        function loadVideo(videoUrl, title) {
+            blurOverlay.style.display = 'none';
+            mainContent.style.display = 'block';
+
+            loadingOverlay.classList.add('active');
+
+            const loadHandler = () => {
+                loadingOverlay.classList.remove('active');
+                mainVideoPlayer.removeEventListener('load', loadHandler);
+            };
+            mainVideoPlayer.addEventListener('load', loadHandler);
+            
+            const separator = videoUrl.includes('?') ? '&' : '?';
+            const fullUrl = `${STREAM_PREFIX}${encodeURIComponent(videoUrl)}${separator}autoplay=1&mute=0`;
+            mainVideoPlayer.src = fullUrl;
+            
+            titleElement.textContent = title;
+            matchTitle.textContent = `🔴 ${title}`;
+        }
+
+        function createMatchCard(match) {
+            const card = document.createElement('div');
+            card.className = 'match-card animated-card';
+            const isLive = match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started';
+            const teams = match.title ? match.title.split(' vs ') : ['Team A', 'Team B'];
+            let actionButtonOrInfo = '';
+
+            if (isLive) {
+                actionButtonOrInfo = `<button class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn">Watch Live</button>`;
+                card.addEventListener('click', () => {
+                    loadVideo(match.adfree_stream, match.title);
+                });
+            } else {
+                const startTime = match.startTime || 'Date/Time not available';
+                actionButtonOrInfo = `<p class="upcoming-info">${startTime}</p>`;
+            }
+
+            card.innerHTML = `
+                ${isLive ? '<div class="match-card-header"><div class="live-indicator"></div>Live</div>' : ''}
+                <img src="${match.image || 'https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found'}" alt="${match.title || 'Match Title'}" onerror="this.src='https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found';">
+                <div class="match-card-details">
+                    <h3 class="text-white">${match.title || 'Unknown Title'}</h3>
+                    ${teams.length === 2 ? `<p class="match-info">${teams.join(' vs ')}</p>` : ''}
+                </div>
+                ${actionButtonOrInfo}
+            `;
+            return card;
+        }
+
+        async function fetchMatches() {
+            const liveMatches = document.getElementById('liveMatches');
+            const upcomingMatches = document.getElementById('upcomingMatches');
+            
+            liveMatches.innerHTML = '<p class="text-gray-300">Loading live matches...</p>';
+            upcomingMatches.innerHTML = '<p class="text-gray-300">Loading upcoming matches...</p>';
+            
+            try {
+                const response = await fetch(JSON_URL + '?t=' + new Date().getTime());
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                
+                const data = await response.json();
+                const matches = Array.isArray(data) ? data : data.matches || [];
+
+                liveMatches.innerHTML = '';
+                upcomingMatches.innerHTML = '';
+                
+                const live = matches.filter(match => match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started');
+                const upcoming = matches.filter(match => match.status.toLowerCase() === 'not_started');
+
+                if (live.length === 0) {
+                    liveMatches.innerHTML = '<p class="text-gray-300">No live matches available.</p>';
+                } else {
+                    live.forEach(match => liveMatches.appendChild(createMatchCard(match)));
+                }
+
+                if (upcoming.length === 0) {
+                    upcomingMatches.innerHTML = '<p class="text-gray-300">No upcoming matches available.</p>';
+                } else {
+                    upcoming.forEach(match => upcomingMatches.appendChild(createMatchCard(match)));
+                }
+
+                blurOverlay.style.display = 'flex';
+                mainContent.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error fetching matches:', error);
+                liveMatches.innerHTML = '<p class="error-message">Failed to load live matches.</p>';
+                upcomingMatches.innerHTML = '<p class="error-message">Failed to load upcoming matches.</p>';
+                blurOverlay.style.display = 'flex';
+                mainContent.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('load', fetchMatches);
+        setInterval(fetchMatches, 300000);
+    </script>
+    <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+</body>
+</html>
