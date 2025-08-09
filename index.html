@@ -11,6 +11,13 @@
             font-family: sans-serif;
             margin: 0;
             padding: 1rem;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        h2 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
 
         .matches-container {
@@ -19,6 +26,7 @@
             width: 100%;
             max-width: 1400px;
             margin: auto;
+            box-sizing: border-box;
         }
 
         /* Mobile: 2 cards */
@@ -44,7 +52,7 @@
             flex-direction: column;
             gap: 0.5rem;
             border: 1px solid #3a042f;
-            height: auto; /* No clipping */
+            height: auto;
             box-sizing: border-box;
         }
 
@@ -86,6 +94,7 @@
 </head>
 <body>
 
+    <h2>Live Matches</h2>
     <div class="matches-container">
         <div class="animated-card">
             <img src="https://via.placeholder.com/300x150" alt="Match">
@@ -93,25 +102,32 @@
                 <a href="#">LIVE</a>
             </div>
         </div>
-
         <div class="animated-card">
             <img src="https://via.placeholder.com/300x150" alt="Match">
             <div class="animated-button-container">
                 <a href="#">LIVE</a>
             </div>
         </div>
+    </div>
 
+    <h2>Upcoming Matches</h2>
+    <div class="matches-container">
         <div class="animated-card">
             <img src="https://via.placeholder.com/300x150" alt="Match">
             <div class="animated-button-container">
-                <a href="#">LIVE</a>
+                <a href="#">DETAILS</a>
             </div>
         </div>
-
         <div class="animated-card">
             <img src="https://via.placeholder.com/300x150" alt="Match">
             <div class="animated-button-container">
-                <a href="#">LIVE</a>
+                <a href="#">DETAILS</a>
+            </div>
+        </div>
+        <div class="animated-card">
+            <img src="https://via.placeholder.com/300x150" alt="Match">
+            <div class="animated-button-container">
+                <a href="#">DETAILS</a>
             </div>
         </div>
     </div>
