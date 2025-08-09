@@ -67,12 +67,9 @@
             padding: 0.75rem;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
             border: 1px solid #3a042f;
-            height: auto; /* Removed fixed height */
+            height: 100%; /* Fill grid cell height */
             box-sizing: border-box;
-            overflow: hidden;
-            justify-content: flex-start;
         }
         .animated-card:hover {
             transform: scale(1.05);
@@ -100,17 +97,15 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
         }
         .match-card-details {
-            flex-grow: 1;
+            flex-grow: 1; /* pushes button down */
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            gap: 0.25rem;
-            overflow: hidden;
         }
         .match-card h3 {
             font-size: 1.1rem;
             font-weight: 600;
-            margin: 0;
+            margin: 0 0 0.5rem 0;
             color: #ffffff;
             display: -webkit-box;
             -webkit-line-clamp: 3;
@@ -118,16 +113,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.3;
-            max-height: 4.0em;
-            min-height: 2.6em;
-        }
-        .match-card .match-info {
-            font-size: 0.75rem;
-            color: #b3b3b3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-shrink: 0;
         }
         .match-card img {
             width: 100%;
@@ -135,13 +120,12 @@
             height: auto;
             object-fit: cover;
             border-radius: 0.5rem;
-            flex-shrink: 0;
         }
         .animated-button-container {
             width: 100%;
             display: flex;
             justify-content: flex-start;
-            margin-top: auto; /* push button to bottom */
+            margin-top: auto;
         }
         .animated-button-container a {
             display: inline-block;
@@ -189,7 +173,7 @@
 
         function createMatchCard(match) {
             const card = document.createElement('div');
-            card.className = 'animated-card';
+            card.className = 'animated-card match-card';
             
             const isLive = match.status?.toLowerCase() === 'live' || match.streamingStatus?.toLowerCase() === 'started';
             
@@ -199,24 +183,21 @@
                 const encodedTitle = encodeURIComponent(match.title || 'Unknown Title');
                 actionButtonOrInfo = `
                     <div class="animated-button-container">
-                        <a href="player.html?url=${encodedUrl}&title=${encodedTitle}" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn text-center py-2 px-4">
+                        <a href="player.html?url=${encodedUrl}&title=${encodedTitle}" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full text-center py-2 px-4">
                             Watch Live
                         </a>
                     </div>
                 `;
             } else {
                 const startTime = match.startTime ? match.startTime : 'Date/Time not available';
-                actionButtonOrInfo = `
-                    <p class="upcoming-info">${startTime}</p>
-                `;
+                actionButtonOrInfo = `<p class="upcoming-info">${startTime}</p>`;
             }
 
             card.innerHTML = `
                 ${isLive ? '<div class="match-card-header"><div class="live-indicator"></div>Live</div>' : ''}
                 <img src="${match.image || 'https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found'}" alt="${match.title || 'Match Title'}" onerror="this.src='https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found';">
                 <div class="match-card-details">
-                    <h3 class="text-white">${match.title || 'Unknown Title'}</h3>
-                    <p class="match-info">${match.matchDescription || 'No description available'}</p>
+                    <h3>${match.title || 'Unknown Title'}</h3>
                 </div>
                 ${actionButtonOrInfo}
             `;
