@@ -50,15 +50,15 @@
         }
         /* Mobile: 2 cards in a row */
         @media (max-width: 1023px) {
-          .matches-container {
-            grid-template-columns: repeat(2, 1fr);
-          }
+            .matches-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         /* PC: 4 cards in a row */
         @media (min-width: 1024px) {
-          .matches-container {
-            grid-template-columns: repeat(4, 1fr);
-          }
+            .matches-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
         .animated-card {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -69,10 +69,10 @@
             flex-direction: column;
             gap: 0.5rem;
             border: 1px solid #3a042f;
-            height: 280px;
+            height: auto; /* Removed fixed height */
             box-sizing: border-box;
             overflow: hidden;
-            justify-content: space-between;
+            justify-content: flex-start;
         }
         .animated-card:hover {
             transform: scale(1.05);
@@ -131,17 +131,21 @@
         }
         .match-card img {
             width: 100%;
-            height: 120px;
+            min-height: 120px;
+            height: auto;
             object-fit: cover;
             border-radius: 0.5rem;
             flex-shrink: 0;
         }
-        .match-card button {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-            border-radius: 9999px;
-            flex-shrink: 0;
-            align-self: flex-start;
+        .animated-button-container {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-top: auto; /* push button to bottom */
+        }
+        .animated-button-container a {
+            display: inline-block;
+            text-decoration: none;
         }
         .match-card .upcoming-info {
             font-size: 0.9rem;
@@ -167,13 +171,6 @@
             align-items: center;
             justify-content: center;
             padding-bottom: 2rem;
-        }
-        .animated-button-container {
-            width: 100%;
-        }
-        .animated-button-container a {
-            display: block; /* Make the anchor tag a block element to fill its container */
-            width: 100%;
         }
     </style>
 </head>
@@ -202,7 +199,7 @@
                 const encodedTitle = encodeURIComponent(match.title || 'Unknown Title');
                 actionButtonOrInfo = `
                     <div class="animated-button-container">
-                        <a href="player.html?url=${encodedUrl}&title=${encodedTitle}" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn text-center py-2 px-4" style="text-decoration: none;">
+                        <a href="player.html?url=${encodedUrl}&title=${encodedTitle}" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn text-center py-2 px-4">
                             Watch Live
                         </a>
                     </div>
@@ -235,9 +232,8 @@
 
             try {
                 const response = await fetch(JSON_URL + '?t=' + new Date().getTime());
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                
                 const data = await response.json();
                 const matches = Array.isArray(data) ? data : data.matches || [];
 
@@ -245,18 +241,15 @@
                 const upcoming = matches.filter(match => match.status?.toLowerCase() === 'not_started');
 
                 liveMatchesContainer.innerHTML = '';
-                if (live.length === 0) {
-                    liveMatchesContainer.innerHTML = '<p class="text-gray-300">No live matches available.</p>';
-                } else {
-                    live.forEach(match => liveMatchesContainer.appendChild(createMatchCard(match)));
-                }
+                live.length === 0
+                    ? liveMatchesContainer.innerHTML = '<p class="text-gray-300">No live matches available.</p>'
+                    : live.forEach(match => liveMatchesContainer.appendChild(createMatchCard(match)));
 
                 upcomingMatchesContainer.innerHTML = '';
-                if (upcoming.length === 0) {
-                    upcomingMatchesContainer.innerHTML = '<p class="text-gray-300">No upcoming matches available.</p>';
-                } else {
-                    upcoming.forEach(match => upcomingMatchesContainer.appendChild(createMatchCard(match)));
-                }
+                upcoming.length === 0
+                    ? upcomingMatchesContainer.innerHTML = '<p class="text-gray-300">No upcoming matches available.</p>'
+                    : upcoming.forEach(match => upcomingMatchesContainer.appendChild(createMatchCard(match)));
+
             } catch (error) {
                 console.error('Error fetching matches:', error);
                 liveMatchesContainer.innerHTML = '<p class="error-message">Failed to load live matches. Please try again later.</p>';
