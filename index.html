@@ -44,7 +44,6 @@
         }
         .matches-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 1rem;
             width: 100%;
             max-width: 1200px;
@@ -169,6 +168,13 @@
             justify-content: center;
             padding-bottom: 2rem;
         }
+        .animated-button-container {
+            width: 100%;
+        }
+        .animated-button-container a {
+            display: block; /* Make the anchor tag a block element to fill its container */
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -183,21 +189,23 @@
     <script>
         const JSON_URL = 'https://raw.githubusercontent.com/Jitendraunatti/fancode/refs/heads/main/data/fancode.json';
         const STREAM_PREFIX = 'https://playerhobintvko111.netlify.app/?url=https://sonta.allinonereborn.xyz/sony/stream_proxy.php?url=';
-        
+
         function createMatchCard(match) {
             const card = document.createElement('div');
             card.className = 'animated-card';
             
-            const isLive = match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started';
+            const isLive = match.status?.toLowerCase() === 'live' || match.streamingStatus?.toLowerCase() === 'started';
             
             let actionButtonOrInfo = '';
             if (isLive) {
                 const encodedUrl = encodeURIComponent(`${STREAM_PREFIX}${encodeURIComponent(match.adfree_stream || '')}`);
                 const encodedTitle = encodeURIComponent(match.title || 'Unknown Title');
                 actionButtonOrInfo = `
-                    <a href="player.html?url=${encodedUrl}&title=${encodedTitle}" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn text-center py-2 px-4" style="text-decoration: none;">
-                        Watch Live
-                    </a>
+                    <div class="animated-button-container">
+                        <a href="player.html?url=${encodedUrl}&title=${encodedTitle}" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn text-center py-2 px-4" style="text-decoration: none;">
+                            Watch Live
+                        </a>
+                    </div>
                 `;
             } else {
                 const startTime = match.startTime ? match.startTime : 'Date/Time not available';
@@ -233,8 +241,8 @@
                 const data = await response.json();
                 const matches = Array.isArray(data) ? data : data.matches || [];
 
-                const live = matches.filter(match => match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started');
-                const upcoming = matches.filter(match => match.status.toLowerCase() === 'not_started');
+                const live = matches.filter(match => match.status?.toLowerCase() === 'live' || match.streamingStatus?.toLowerCase() === 'started');
+                const upcoming = matches.filter(match => match.status?.toLowerCase() === 'not_started');
 
                 liveMatchesContainer.innerHTML = '';
                 if (live.length === 0) {
