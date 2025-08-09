@@ -22,7 +22,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #7a0864;
         }
-
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #150010;
@@ -32,7 +31,6 @@
             height: 100%;
             overflow-x: hidden !important;
         }
-
         .blur-overlay {
             width: 100%;
             min-height: 100vh;
@@ -44,15 +42,25 @@
             box-sizing: border-box;
             align-items: center;
         }
-
         .matches-container {
             display: grid;
-            grid-template-columns: repeat(2, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 1rem;
             width: 100%;
             max-width: 1200px;
         }
-
+        /* Mobile: 2 cards in a row */
+        @media (max-width: 1023px) {
+          .matches-container {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        /* PC: 4 cards in a row */
+        @media (min-width: 1024px) {
+          .matches-container {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
         .animated-card {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             background: #2a0322;
@@ -67,12 +75,10 @@
             overflow: hidden;
             justify-content: space-between;
         }
-
         .animated-card:hover {
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(90, 6, 75, 0.7);
         }
-        
         .match-card-header {
             display: flex;
             align-items: center;
@@ -155,27 +161,6 @@
             font-size: 1rem;
             text-align: center;
         }
-        @media (min-width: 1024px) {
-            .matches-container {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .match-card {
-                height: 300px;
-            }
-            .match-card img {
-                height: 140px;
-            }
-            .match-card h3 {
-                font-size: 1.2rem;
-                -webkit-line-clamp: 3;
-                max-height: 4.0em;
-                min-height: 2.8em;
-            }
-            .match-card button {
-                font-size: 1rem;
-                padding: 0.7rem 1.4rem;
-            }
-        }
         .main-container {
             width: 100%;
             display: flex;
@@ -207,7 +192,6 @@
             
             let actionButtonOrInfo = '';
             if (isLive) {
-                // Pass URL and title to player.html
                 const encodedUrl = encodeURIComponent(`${STREAM_PREFIX}${encodeURIComponent(match.adfree_stream || '')}`);
                 const encodedTitle = encodeURIComponent(match.title || 'Unknown Title');
                 actionButtonOrInfo = `
@@ -277,4 +261,3 @@
     </script>
 </body>
 </html>
-
