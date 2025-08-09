@@ -35,30 +35,6 @@
             padding: 0.75rem 1.5rem;
         }
         .animated-button:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(255, 0, 122, 0.4); background: linear-gradient(45deg, #ff4da6, #b266ff); }
-        .loading-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(21, 0, 16, 0.95);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 999;
-            opacity: 0; visibility: hidden;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        .loading-overlay.active { opacity: 1; visibility: visible; }
-        .spinner {
-            width: 80px; height: 80px;
-            border: 8px solid transparent;
-            border-top-color: #ff007a; border-right-color: #9b00ff;
-            border-radius: 50%;
-            animation: spin 1.2s ease-in-out infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text {
-            color: #e0e0e0;
-            font-size: 1.5rem; font-weight: 600;
-            margin-top: 1.5rem;
-            animation: pulse-text 1.8s ease-in-out infinite;
-        }
-        @keyframes pulse-text { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
 
         /* Main Container & Content */
         .blur-overlay {
@@ -69,21 +45,13 @@
             min-height: 100vh;
             width: 100%; box-sizing: border-box;
         }
-        .main-content {
-            display: none; padding: 1rem; width: 100%; box-sizing: border-box;
-            flex-grow: 1;
-        }
-        .main-content-wrapper {
-            width: 100%;
-            padding: 2rem;
-            background: #1e0117;
-            border-radius: 1rem;
-            box-sizing: border-box;
-        }
         .matches-container {
             display: grid;
             width: 100%; max-width: 100%;
             margin: 0 auto; box-sizing: border-box;
+            /* New responsive grid for 2 cards on mobile */
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
         }
         .section-title {
             font-size: 2.25rem; font-weight: 800;
@@ -102,7 +70,7 @@
             border: 1px solid #ff007a;
             transition: transform 0.4s ease, box-shadow 0.4s ease;
             text-align: center; position: relative; overflow: hidden;
-            cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+            cursor: pointer;
         }
         .match-card:hover { transform: translateY(-8px); box-shadow: 0 8px 24px rgba(255, 0, 122, 0.5); }
         .match-card-header {
@@ -142,13 +110,8 @@
         }
 
         /* Responsive adjustments for the main content area */
-        .matches-container {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
         @media (max-width: 480px) {
             .section-title { font-size: 1.5rem; margin-bottom: 1rem; }
-            .matches-container { grid-template-columns: 1fr; gap: 0.75rem; }
             .match-card h3 { font-size: 1rem; }
             .match-card .match-info { font-size: 0.75rem; }
             .match-card button, .match-card .upcoming-info { padding: 0.5rem 1rem; font-size: 0.8rem; }
@@ -176,7 +139,6 @@
             if (isLive) {
                 actionButtonOrInfo = `<button class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn">Watch Live</button>`;
                 card.onclick = () => {
-                    // Redirect to player.html with match data
                     window.location.href = `player.html?videoUrl=${encodeURIComponent(match.adfree_stream)}&title=${encodeURIComponent(match.title)}`;
                 };
             } else {
