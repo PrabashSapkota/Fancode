@@ -22,7 +22,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #7a0864;
         }
-
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #150010;
@@ -33,12 +32,10 @@
             overflow-x: hidden;
             scroll-behavior: smooth;
         }
-
         main {
             flex-grow: 1;
             min-height: 100vh;
         }
-
         .video-player-shadow {
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
             border: 8px solid #3a042f;
@@ -173,7 +170,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const videoUrl = urlParams.get('url');
             const title = urlParams.get('title');
-
+            
             const mainVideoPlayer = document.getElementById('mainVideoPlayer');
             const loadingOverlay = document.getElementById('loadingOverlay');
             const matchTitleElement = document.getElementById('matchTitle');
@@ -183,7 +180,7 @@
             if (videoUrl) {
                 const decodedUrl = decodeURIComponent(videoUrl);
                 const decodedTitle = decodeURIComponent(title);
-
+                
                 matchTitleElement.textContent = `🔴 ${decodedTitle}`;
                 pageTitleElement.textContent = `Fancode - ${decodedTitle}`;
                 
@@ -204,11 +201,10 @@
                 mainVideoPlayer.src = decodedUrl;
             } else {
                 matchTitleElement.textContent = "🔴 No Live Match Selected";
-                loadingOverlay.style.display = 'none'; // Hide loading overlay if no video URL is provided
-                mainVideoPlayer.src = 'about:blank'; // Set to a blank page
+                loadingOverlay.style.display = 'none';
+                mainVideoPlayer.src = 'about:blank';
             }
             
-            // Socket.IO for viewer count (unchanged)
             const id = 'fancodelivehejeje';
             const socket = io('wss://96-4.jdx3.org', {
                 query: { id }
