@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fancode Live Matches</title>
+    <title>Fancode Matches</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -11,7 +11,7 @@
             font-family: sans-serif;
             margin: 0;
             padding: 1rem;
-            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-x: hidden;
         }
 
         h2 {
@@ -20,6 +20,7 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Shared grid for all match sections */
         .matches-container {
             display: grid;
             gap: 1rem;
@@ -43,6 +44,7 @@
             }
         }
 
+        /* Card style */
         .animated-card {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             background: #2a0322;
@@ -52,7 +54,6 @@
             flex-direction: column;
             gap: 0.5rem;
             border: 1px solid #3a042f;
-            height: auto;
             box-sizing: border-box;
         }
 
@@ -69,6 +70,7 @@
             border-radius: 0.5rem;
         }
 
+        /* Button container */
         .animated-button-container {
             width: 100%;
             display: flex;
@@ -76,6 +78,7 @@
             margin-top: auto;
         }
 
+        /* Button style */
         .animated-button-container a {
             background-color: #ff004c;
             color: white;
