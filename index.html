@@ -49,7 +49,7 @@ html, body {
     top: 0;
     left: 0;
     width: 100%;
-    min-height: 100vh; /* Ensure it covers at least the viewport */
+    min-height: 100vh;
     background: rgba(21, 0, 16, 0.9);
     z-index: 999;
     display: flex;
@@ -57,7 +57,12 @@ html, body {
     gap: 1rem;
     padding: 2rem;
     box-sizing: border-box;
+
+    /* Scroll fix */
+    overflow-y: auto;
+    max-height: 100vh;
 }
+
 .match-card {
     background: #2a0322;
     border-radius: 1rem;
@@ -330,6 +335,7 @@ window.addEventListener('load', () => {
     <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
 </body>
 </html>
+
 
 
 
