@@ -131,7 +131,7 @@
             flex-shrink: 0;
             align-self: flex-start;
         }
-        .match-card .upcoming-info {
+        .match-card .upcoming-info, .match-card .unavailable-info {
             font-size: 0.9rem;
             color: #a0a0a0;
             background-color: #3a042f;
@@ -215,11 +215,16 @@
             let actionButtonOrInfo = '';
 
             if (isLive) {
-                actionButtonOrInfo = `
-                    <button class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn" data-url="${match.adfree_stream || ''}" data-title="${match.title || 'Unknown Title'}">
-                        Watch Live
-                    </button>
-                `;
+                // Check if a stream URL exists before creating a button
+                if (match.adfree_stream) {
+                    actionButtonOrInfo = `
+                        <button class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn" data-url="${match.adfree_stream}" data-title="${match.title || 'Unknown Title'}">
+                            Watch Live
+                        </button>
+                    `;
+                } else {
+                    actionButtonOrInfo = `<p class="unavailable-info">Stream Unavailable</p>`;
+                }
             } else {
                 const startTime = match.startTime ? match.startTime : 'Date/Time not available';
                 actionButtonOrInfo = `<p class="upcoming-info">${startTime}</p>`;
@@ -275,17 +280,9 @@
                         const rawUrl = button.getAttribute('data-url');
                         const title = button.getAttribute('data-title');
                         
-                        // Check if both URL and title are valid before redirecting
                         if (rawUrl && title) {
-                            // Construct the full video URL using the STREAM_PREFIX
                             const fullUrl = `${STREAM_PREFIX}${encodeURIComponent(rawUrl)}`;
-                            
-                            // Redirect to player.html with the video URL and title as query parameters
                             window.location.href = `player.html?videoUrl=${encodeURIComponent(fullUrl)}&title=${encodeURIComponent(title)}`;
-                        } else {
-                            // Optionally, handle the case where data is missing
-                            console.error('Missing video URL or title for this match.');
-                            alert('Sorry, the video stream for this match is unavailable.');
                         }
                     });
                 });
