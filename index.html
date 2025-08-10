@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Fancode - Live Matches</title>
+    <title>Fancode Matches</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -29,51 +29,42 @@
             margin: 0 !important;
             padding: 0 !important;
             height: 100%;
-            overflow-x: hidden !important;
+            overflow: hidden !important;
         }
         .blur-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             min-height: 100vh;
             background: rgba(21, 0, 16, 0.9);
+            z-index: 999;
             display: flex;
             flex-direction: column;
             gap: 1rem;
             padding: 2rem;
+            overflow-y: auto;
             box-sizing: border-box;
-            align-items: center;
-        }
-        .matches-container {
-            display: grid;
-            gap: 1rem;
-            width: 100%;
-            max-width: 1200px;
-        }
-        /* Mobile: 2 cards in a row */
-        @media (max-width: 1023px) {
-            .matches-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        /* PC: 4 cards in a row */
-        @media (min-width: 1024px) {
-            .matches-container {
-                grid-template-columns: repeat(4, 1fr);
-            }
         }
         .animated-card {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .animated-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(90, 6, 75, 0.7);
+        }
+        .match-card {
             background: #2a0322;
             border-radius: 1rem;
             padding: 0.75rem;
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
             border: 1px solid #3a042f;
-            height: 100%; /* Fill grid cell height */
+            height: 280px;
             box-sizing: border-box;
-        }
-        .animated-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(90, 6, 75, 0.7);
+            overflow: hidden;
+            justify-content: space-between;
         }
         .match-card-header {
             display: flex;
@@ -96,16 +87,25 @@
             70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
         }
+        .match-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            flex-shrink: 0;
+        }
         .match-card-details {
-            flex-grow: 1; /* pushes button down */
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            gap: 0.25rem;
+            overflow: hidden;
         }
         .match-card h3 {
             font-size: 1.1rem;
             font-weight: 600;
-            margin: 0 0 0.5rem 0;
+            margin: 0;
             color: #ffffff;
             display: -webkit-box;
             -webkit-line-clamp: 3;
@@ -113,23 +113,29 @@
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.3;
+            max-height: 4.0em;
+            min-height: 2.6em;
         }
-        .match-card img {
-            width: 100%;
-            min-height: 120px;
-            height: auto;
-            object-fit: cover;
-            border-radius: 0.5rem;
+        .match-card .match-info {
+            font-size: 0.75rem;
+            color: #b3b3b3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
         }
-        .animated-button-container {
-            width: 100%;
-            display: flex;
-            justify-content: flex-start;
-            margin-top: auto;
+        .match-card button {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: 9999px;
+            flex-shrink: 0;
+            align-self: flex-start;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
         }
-        .animated-button-container a {
-            display: inline-block;
-            text-decoration: none;
+        .match-card button:hover {
+            background-color: #e03e3e;
         }
         .match-card .upcoming-info {
             font-size: 0.9rem;
@@ -148,56 +154,91 @@
             font-size: 1rem;
             text-align: center;
         }
-        .main-container {
+        .matches-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 2rem;
+        }
+        @media (min-width: 1024px) {
+            .matches-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .match-card {
+                height: 300px;
+            }
+            .match-card img {
+                height: 140px;
+            }
+            .match-card h3 {
+                font-size: 1.2rem;
+                -webkit-line-clamp: 3;
+                max-height: 4.0em;
+                min-height: 2.8em;
+            }
+            .match-card button {
+                font-size: 1rem;
+                padding: 0.7rem 1.4rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .blur-overlay {
+                padding: 1rem;
+            }
+            .match-card {
+                height: 240px;
+            }
+            .match-card img {
+                height: 100px;
+            }
+            .match-card h3 {
+                font-size: 0.95rem;
+                -webkit-line-clamp: 3;
+                max-height: 4.0em;
+                min-height: 2.5em;
+            }
+            .match-card button {
+                font-size: 0.75rem;
+                padding: 0.5rem 1rem;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="blur-overlay">
-        <div class="main-container">
-            <h4 class="text-3xl font-bold text-white mb-6">Live Matches</h4>
-            <div id="liveMatches" class="matches-container"></div>
-            <h4 class="text-3xl font-bold text-white mt-12 mb-6">Upcoming Matches</h4>
-            <div id="upcomingMatches" class="matches-container"></div>
-        </div>
+<body class="min-h-screen flex flex-col">
+    <div class="blur-overlay" id="blurOverlay">
+        <h4 class="text-2xl font-bold text-white">Live Matches</h4>
+        <div id="liveMatches" class="matches-container"></div>
+        <h4 class="text-2xl font-bold text-white mt-6">Upcoming Matches</h4>
+        <div id="upcomingMatches" class="matches-container"></div>
     </div>
     <script>
         const JSON_URL = 'https://raw.githubusercontent.com/Jitendraunatti/fancode/refs/heads/main/data/fancode.json';
-        const STREAM_PREFIX = 'https://www.m3u8player.online/embed/m3u8?url=https://mini.allinonereborn.site/sony/stream_proxy.php?url=';
+        const STREAM_PREFIX = 'https://anym3u8player.com/tv/video-player.php?url=https://mini.allinonereborn.site/sony/stream_proxy.php?url=';
 
         function createMatchCard(match) {
             const card = document.createElement('div');
-            card.className = 'animated-card match-card';
-            
-            const isLive = match.status?.toLowerCase() === 'live' || match.streamingStatus?.toLowerCase() === 'started';
-            
+            card.className = 'match-card animated-card';
+            const isLive = match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started';
+            const teams = match.title ? match.title.split(' vs ') : ['Team A', 'Team B'];
             let actionButtonOrInfo = '';
             if (isLive) {
-                const encodedUrl = encodeURIComponent(`${STREAM_PREFIX}${encodeURIComponent(match.adfree_stream || '')}`);
-                const encodedTitle = encodeURIComponent(match.title || 'Unknown Title');
                 actionButtonOrInfo = `
-                    <div class="animated-button-container">
-                        <a href="player.html?url=${encodedUrl}&title=${encodedTitle}" class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full text-center py-2 px-4">
-                            Watch Live
-                        </a>
-                    </div>
+                    <button class="watch-live-btn" data-url="${match.adfree_stream || ''}" data-title="${match.title || 'Unknown Title'}">
+                        Watch Live
+                    </button>
                 `;
             } else {
                 const startTime = match.startTime ? match.startTime : 'Date/Time not available';
-                actionButtonOrInfo = `<p class="upcoming-info">${startTime}</p>`;
+                actionButtonOrInfo = `
+                    <p class="upcoming-info">${startTime}</p>
+                `;
             }
-
             card.innerHTML = `
                 ${isLive ? '<div class="match-card-header"><div class="live-indicator"></div>Live</div>' : ''}
                 <img src="${match.image || 'https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found'}" alt="${match.title || 'Match Title'}" onerror="this.src='https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found';">
                 <div class="match-card-details">
-                    <h3>${match.title || 'Unknown Title'}</h3>
+                    <h3 class="text-white">${match.title || 'Unknown Title'}</h3>
+                    ${teams.length === 2 ? `<p class="match-info">${teams.join(' vs ')}</p>` : ''}
                 </div>
                 ${actionButtonOrInfo}
             `;
@@ -205,44 +246,71 @@
         }
 
         async function fetchMatches() {
-            const liveMatchesContainer = document.getElementById('liveMatches');
-            const upcomingMatchesContainer = document.getElementById('upcomingMatches');
-
-            liveMatchesContainer.innerHTML = '<p class="text-gray-300">Loading live matches...</p>';
-            upcomingMatchesContainer.innerHTML = '<p class="text-gray-300">Loading upcoming matches...</p>';
-
+            const liveMatches = document.getElementById('liveMatches');
+            const upcomingMatches = document.getElementById('upcomingMatches');
+            const blurOverlay = document.getElementById('blurOverlay');
+            liveMatches.innerHTML = '<p class="text-gray-300">Loading live matches...</p>';
+            upcomingMatches.innerHTML = '<p class="text-gray-300">Loading upcoming matches...</p>';
+            blurOverlay.style.display = 'flex';
+            blurOverlay.style.overflowY = 'auto';
+            document.body.style.overflow = 'hidden';
             try {
                 const response = await fetch(JSON_URL + '?t=' + new Date().getTime());
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
                 const data = await response.json();
                 const matches = Array.isArray(data) ? data : data.matches || [];
-
-                const live = matches.filter(match => match.status?.toLowerCase() === 'live' || match.streamingStatus?.toLowerCase() === 'started');
-                const upcoming = matches.filter(match => match.status?.toLowerCase() === 'not_started');
-
-                liveMatchesContainer.innerHTML = '';
-                live.length === 0
-                    ? liveMatchesContainer.innerHTML = '<p class="text-gray-300">No live matches available.</p>'
-                    : live.forEach(match => liveMatchesContainer.appendChild(createMatchCard(match)));
-
-                upcomingMatchesContainer.innerHTML = '';
-                upcoming.length === 0
-                    ? upcomingMatchesContainer.innerHTML = '<p class="text-gray-300">No upcoming matches available.</p>'
-                    : upcoming.forEach(match => upcomingMatchesContainer.appendChild(createMatchCard(match)));
-
+                liveMatches.innerHTML = '';
+                upcomingMatches.innerHTML = '';
+                const live = matches.filter(match => match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started');
+                const upcoming = matches.filter(match => match.status.toLowerCase() === 'not_started');
+                if (live.length === 0) {
+                    liveMatches.innerHTML = '<p class="text-gray-300">No live matches available.</p>';
+                } else {
+                    live.forEach(match => {
+                        liveMatches.appendChild(createMatchCard(match));
+                    });
+                }
+                if (upcoming.length === 0) {
+                    upcomingMatches.innerHTML = '<p class="text-gray-300">No upcoming matches available.</p>';
+                } else {
+                    upcoming.forEach(match => {
+                        upcomingMatches.appendChild(createMatchCard(match));
+                    });
+                }
+                blurOverlay.style.height = 'auto';
+                blurOverlay.style.minHeight = '100vh';
+                setTimeout(() => {
+                    blurOverlay.scrollTop = 0;
+                }, 0);
+                document.querySelectorAll('.watch-live-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const rawUrl = button.getAttribute('data-url');
+                        const title = button.getAttribute('data-title');
+                        if (rawUrl) {
+                            const fullUrl = `${STREAM_PREFIX}${encodeURIComponent(rawUrl)}`;
+                            window.location.href = `player.html?url=${encodeURIComponent(fullUrl)}&title=${encodeURIComponent(title)}`;
+                        }
+                    });
+                });
             } catch (error) {
                 console.error('Error fetching matches:', error);
-                liveMatchesContainer.innerHTML = '<p class="error-message">Failed to load live matches. Please try again later.</p>';
-                upcomingMatchesContainer.innerHTML = '<p class="error-message">Failed to load upcoming matches. Please try again later.</p>';
+                liveMatches.innerHTML = '<p class="error-message">Failed to load live matches. Please try again later.</p>';
+                upcomingMatches.innerHTML = '<p class="error-message">Failed to load upcoming matches. Please try again later.</p>';
+                blurOverlay.style.height = 'auto';
+                blurOverlay.style.minHeight = '100vh';
+                setTimeout(() => {
+                    blurOverlay.scrollTop = 0;
+                }, 0);
             }
         }
 
-        document.addEventListener('DOMContentLoaded', fetchMatches);
-        setInterval(fetchMatches, 300000);
+        window.addEventListener('load', () => {
+            fetchMatches();
+            setInterval(fetchMatches, 300000);
+        });
     </script>
+    <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
 </body>
 </html>
-
-
-
