@@ -1,150 +1,1219 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fancode Matches</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #150010;
-            color: #e0e0e0;
-            margin: 0;
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2a0322;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #5a064b;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7a0864;
-        }
-        .match-card {
-            background: #2a0322;
-            border-radius: 1rem;
-            padding: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            border: 1px solid #3a042f;
-            height: 280px;
-            box-sizing: border-box;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .match-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(90, 6, 75, 0.7);
-        }
-        .match-card img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-        }
-        .live-indicator {
-            width: 10px;
-            height: 10px;
-            background-color: #ff4d4d;
-            border-radius: 50%;
-            margin-right: 0.5rem;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-        }
-    </style>
+    <meta charset="UTF-8">
+
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Fancode</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        ::-webkit-scrollbar {
+
+            width: 8px;
+
+            height: 8px;
+
+        }
+
+        ::-webkit-scrollbar-track {
+
+            background: #2a0322;
+
+            border-radius: 10px;
+
+        }
+
+        ::-webkit-scrollbar-thumb {
+
+            background: #5a064b;
+
+            border-radius: 10px;
+
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+
+            background: #7a0864;
+
+        }
+
+
+
+        html, body {
+
+            font-family: 'Inter', sans-serif;
+
+            background-color: #150010;
+
+            color: #e0e0e0;
+
+            margin: 0 !important;
+
+            padding: 0 !important;
+
+            height: 100%;
+
+            overflow: hidden !important; /* Prevent body scrolling */
+
+        }
+
+
+
+        main {
+
+            flex-grow: 1;
+
+            min-height: 100vh;
+
+        }
+
+
+
+        .video-player-shadow {
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+
+            border: 8px solid #3a042f;
+
+            border-radius: 2rem;
+
+        }
+
+        .animated-button {
+
+            transition: all 0.3s ease-in-out;
+
+        }
+
+        .animated-button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+        }
+
+        .animated-card {
+
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+        }
+
+        .animated-card:hover {
+
+            transform: scale(1.05);
+
+            box-shadow: 0 0 15px rgba(90, 6, 75, 0.7);
+
+        }
+
+        .main-content-wrapper {
+
+            margin: 0;
+
+            padding: 0 !important;
+
+            margin-top: -20px !important;
+
+        }
+
+        .video-details-shadow, .live-chat-shadow, .buttons-section-shadow {
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+
+        }
+
+        .loading-overlay {
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            bottom: 0;
+
+            background: rgba(21, 0, 16, 0.9);
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+
+            align-items: center;
+
+            z-index: 999;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+
+        }
+
+        .loading-overlay.active {
+
+            opacity: 1;
+
+            visibility: visible;
+
+        }
+
+        .spinner {
+
+            width: 60px;
+
+            height: 60px;
+
+            border: 6px solid #5a064b;
+
+            border-top-color: #e0e0e0;
+
+            border-radius: 50%;
+
+            animation: spin 1s linear infinite;
+
+        }
+
+        @keyframes spin {
+
+            to { transform: rotate(360deg); }
+
+        }
+
+        .loading-text {
+
+            color: #e0e0e0;
+
+            font-size: 1.25rem;
+
+            font-weight: 500;
+
+            margin-top: 1rem;
+
+            animation: pulse-text 1.5s ease-in-out infinite;
+
+        }
+
+        @keyframes pulse-text {
+
+            0%, 100% { opacity: 1; }
+
+            50% { opacity: 0.6; }
+
+        }
+
+        .buttons-section-shadow .flex {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 2px;
+
+        }
+
+        .buttons-section-shadow button {
+
+            flex: 1 1 100px;
+
+            min-width: 0;
+
+            text-align: center;
+
+            background-color: #5a064b;
+
+            color: white;
+
+            font-weight: 600;
+
+            padding: 0.5rem 1rem;
+
+            border: none;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            transition: all 0.3s ease-in-out;
+
+        }
+
+        .buttons-section-shadow button:hover {
+
+            background-color: #7a0864;
+
+        }
+
+        .buttons-section-shadow button:first-child {
+
+            border-top-left-radius: 9999px;
+
+            border-bottom-left-radius: 9999px;
+
+        }
+
+        .buttons-section-shadow button:last-child {
+
+            border-top-right-radius: 9999px;
+
+            border-bottom-right-radius: 9999px;
+
+        }
+
+        .buttons-section-shadow button:not(:last-child) {
+
+            border-right: 1px solid #3a042f;
+
+        }
+
+        .live-chat-shadow {
+
+            display: flex;
+
+            flex-direction: column;
+
+            max-height: 100vh;
+
+            overflow: hidden;
+
+        }
+
+        .live-chat-shadow .flex-grow {
+
+            flex-grow: 1;
+
+            overflow-y: auto;
+
+        }
+
+        .live-chat-shadow iframe {
+
+            width: 100%;
+
+            height: 100%;
+
+            border: none;
+
+        }
+
+        @media (max-width: 768px) {
+
+            .spinner {
+
+                width: 40px;
+
+                height: 40px;
+
+                border-width: 4px;
+
+            }
+
+            .loading-text {
+
+                font-size: 1rem;
+
+            }
+
+            .buttons-section-shadow .flex {
+
+                flex-direction: row;
+
+                gap: 4px;
+
+            }
+
+            .buttons-section-shadow button {
+
+                font-size: 0.875rem;
+
+                padding: 0.5rem;
+
+                flex: 1 1 80px;
+
+                border-radius: 9999px;
+
+                border-right: none;
+
+            }
+
+            .buttons-section-shadow button:first-child,
+
+            .buttons-section-shadow button:last-child {
+
+                border-radius: 9999px;
+
+            }
+
+            .live-chat-shadow {
+
+                height: 400px;
+
+            }
+
+            .blur-overlay {
+
+                padding: 1rem;
+
+            }
+
+            .match-card {
+
+                height: 240px;
+
+            }
+
+            .match-card img {
+
+                height: 100px;
+
+            }
+
+            .match-card h3 {
+
+                font-size: 0.95rem;
+
+                -webkit-line-clamp: 3;
+
+                max-height: 4.0em;
+
+                min-height: 2.5em;
+
+            }
+
+            .match-card button {
+
+                font-size: 0.75rem;
+
+                padding: 0.5rem 1rem;
+
+            }
+
+        }
+
+        @media (min-width: 769px) {
+
+            .buttons-section-shadow .flex {
+
+                flex-wrap: nowrap;
+
+            }
+
+            .buttons-section-shadow button {
+
+                font-size: 1rem;
+
+                padding: 0.5rem 1rem;
+
+            }
+
+            .live-chat-shadow {
+
+                height: calc(100vh - 100px);
+
+                max-height: 800px;
+
+            }
+
+        }
+
+        .blur-overlay {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            min-height: 100vh; /* Ensure overlay can expand */
+
+            background: rgba(21, 0, 16, 0.9);
+
+            z-index: 999;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 1rem;
+
+            padding: 2rem;
+
+            overflow-y: auto; /* Ensure scrollability */
+
+            box-sizing: border-box;
+
+        }
+
+        .main-blurred {
+
+            filter: blur(8px);
+
+            transition: filter 0.3s ease;
+
+            position: fixed;
+
+            width: 100%;
+
+            height: 100%;
+
+            top: 0;
+
+            left: 0;
+
+            overflow: hidden; /* Prevent main content scrolling */
+
+        }
+
+        .main-scrollable {
+
+            position: static;
+
+            overflow-y: auto; /* Allow main content scrolling */
+
+        }
+
+        .match-card {
+
+            background: #2a0322;
+
+            border-radius: 1rem;
+
+            padding: 0.75rem;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 0.5rem;
+
+            border: 1px solid #3a042f;
+
+            height: 280px;
+
+            box-sizing: border-box;
+
+            overflow: hidden;
+
+            justify-content: space-between;
+
+        }
+
+        .match-card-header {
+
+            display: flex;
+
+            align-items: center;
+
+            margin-bottom: 0.25rem;
+
+            font-size: 0.8rem;
+
+            color: #e0e0e0;
+
+            flex-shrink: 0;
+
+        }
+
+        .match-card-header .live-indicator {
+
+            width: 0.6rem;
+
+            height: 0.6rem;
+
+            background-color: #ff4d4d;
+
+            border-radius: 50%;
+
+            margin-right: 0.5rem;
+
+            animation: pulse 1.5s infinite;
+
+        }
+
+        @keyframes pulse {
+
+            0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+
+            70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+
+            100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+
+        }
+
+        .match-card img {
+
+            width: 100%;
+
+            height: 120px;
+
+            object-fit: cover;
+
+            border-radius: 0.5rem;
+
+            flex-shrink: 0;
+
+        }
+
+        .match-card-details {
+
+            flex-grow: 1;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: flex-start;
+
+            gap: 0.25rem;
+
+            overflow: hidden;
+
+        }
+
+        .match-card h3 {
+
+            font-size: 1.1rem;
+
+            font-weight: 600;
+
+            margin: 0;
+
+            color: #ffffff;
+
+            display: -webkit-box;
+
+            -webkit-line-clamp: 3;
+
+            -webkit-box-orient: vertical;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            line-height: 1.3;
+
+            max-height: 4.0em;
+
+            min-height: 2.6em;
+
+        }
+
+        .match-card .match-info {
+
+            font-size: 0.75rem;
+
+            color: #b3b3b3;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            flex-shrink: 0;
+
+        }
+
+        .match-card button {
+
+            padding: 0.6rem 1.2rem;
+
+            font-size: 0.9rem;
+
+            border-radius: 9999px;
+
+            flex-shrink: 0;
+
+            align-self: flex-start;
+
+        }
+
+        .match-card .upcoming-info {
+
+            font-size: 0.9rem;
+
+            color: #a0a0a0;
+
+            background-color: #3a042f;
+
+            padding: 0.6rem 1.2rem;
+
+            border-radius: 9999px;
+
+            text-align: center;
+
+            font-weight: 600;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+        }
+
+        .error-message {
+
+            color: #ff4d4d;
+
+            font-size: 1rem;
+
+            text-align: center;
+
+        }
+
+        .matches-container {
+
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 1rem;
+
+            width: 100%;
+
+            /* min-height: 200vh; */ /* Uncomment for testing scrolling */
+
+        }
+
+        @media (min-width: 1024px) {
+
+            .matches-container {
+
+                grid-template-columns: repeat(4, 1fr);
+
+            }
+
+            .live-chat-shadow {
+
+                height: 400px;
+
+            }
+
+            .match-card {
+
+                height: 300px;
+
+            }
+
+            .match-card img {
+
+                height: 140px;
+
+            }
+
+            .match-card h3 {
+
+                font-size: 1.2rem;
+
+                -webkit-line-clamp: 3;
+
+                max-height: 4.0em;
+
+                min-height: 2.8em;
+
+            }
+
+            .match-card button {
+
+                font-size: 1rem;
+
+                padding: 0.7rem 1.4rem;
+
+            }
+
+            .main-content-wrapper {
+
+                padding: 0 !important;
+
+            }
+
+        }
+
+    </style>
+
 </head>
-<body class="min-h-screen">
 
-    <div class="p-6 space-y-10">
-        <section>
-            <h2 class="text-3xl font-bold mb-4">Live Matches</h2>
-            <div id="liveMatches" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-        </section>
+<body class="min-h-screen flex flex-col">
 
-        <section>
-            <h2 class="text-3xl font-bold mb-4">Upcoming Matches</h2>
-            <div id="upcomingMatches" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-        </section>
-    </div>
+    <div class="blur-overlay" id="blurOverlay">
 
-    <script>
-        const JSON_URL = 'https://raw.githubusercontent.com/Jitendraunatti/fancode/refs/heads/main/data/fancode.json';
-        const STREAM_PREFIX = 'https://anym3u8player.com/tv/video-player.php?url=https://mini.allinonereborn.site/sony/stream_proxy.php?url=';
+        <h4 class="text-2xl font-bold text-white">Live Matches</h4>
 
-        function createMatchCard(match) {
-            const isLive = match.status?.toLowerCase() === 'live' || match.streamingStatus?.toLowerCase() === 'started';
-            const teams = match.title ? match.title.split(' vs ') : [];
+        <div id="liveMatches" class="matches-container"></div>
 
-            const card = document.createElement('div');
-            card.className = 'match-card';
+        <h4 class="text-2xl font-bold text-white mt-6">Upcoming Matches</h4>
 
-            card.innerHTML = `
-                ${isLive ? `<div class="flex items-center text-sm mb-2"><div class="live-indicator"></div>Live</div>` : ''}
-                <img src="${match.image || 'https://placehold.co/300x150/5a064b/ffffff?text=No+Image'}" alt="${match.title || 'Match'}">
-                <h3 class="text-white font-semibold text-lg line-clamp-2">${match.title || 'Unknown Match'}</h3>
-                <p class="text-sm text-gray-400 truncate">${teams.join(' vs ')}</p>
-                ${
-                    isLive
-                        ? `<button class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full px-4 py-2 mt-2 watch-live-btn" data-url="${match.adfree_stream}" data-title="${match.title}">Watch Live</button>`
-                        : `<p class="bg-gray-700 text-gray-200 rounded-full px-4 py-2 mt-2 text-sm text-center">${match.startTime || 'TBA'}</p>`
-                }
-            `;
-            return card;
-        }
+        <div id="upcomingMatches" class="matches-container"></div>
 
-        async function fetchMatches() {
-            const liveMatches = document.getElementById('liveMatches');
-            const upcomingMatches = document.getElementById('upcomingMatches');
+    </div>
 
-            liveMatches.innerHTML = '<p class="text-gray-400">Loading...</p>';
-            upcomingMatches.innerHTML = '<p class="text-gray-400">Loading...</p>';
+    <main class="flex-grow" id="mainContent">
 
-            try {
-                const res = await fetch(JSON_URL + '?t=' + Date.now());
-                const data = await res.json();
-                const matches = Array.isArray(data) ? data : data.matches || [];
+        <div class="w-full bg-[#1e0117] main-content-wrapper">
 
-                liveMatches.innerHTML = '';
-                upcomingMatches.innerHTML = '';
+            <hr class="border-t border-[#3a042f] mb-6 w-full mx-auto" />
 
-                const live = matches.filter(m => m.status?.toLowerCase() === 'live' || m.streamingStatus?.toLowerCase() === 'started');
-                const upcoming = matches.filter(m => m.status?.toLowerCase() === 'not_started');
+            <div class="flex flex-col lg:flex-row gap-6">
 
-                live.forEach(match => liveMatches.appendChild(createMatchCard(match)));
-                upcoming.forEach(match => upcomingMatches.appendChild(createMatchCard(match)));
+                <div class="flex-1 lg:w-2/3">
 
-                document.querySelectorAll('.watch-live-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const rawUrl = btn.getAttribute('data-url');
-                        const title = btn.getAttribute('data-title');
-                        if (rawUrl) {
-                            const fullUrl = `${STREAM_PREFIX}${encodeURIComponent(rawUrl)}`;
-                            window.location.href = `player.html?url=${encodeURIComponent(fullUrl)}&title=${encodeURIComponent(title)}`;
-                        }
-                    });
-                });
-            } catch (err) {
-                console.error('Error loading matches:', err);
-                liveMatches.innerHTML = '<p class="text-red-500">Failed to load matches</p>';
-                upcomingMatches.innerHTML = '<p class="text-red-500">Failed to load matches</p>';
-            }
-        }
+                    <div class="aspect-video bg-[#22021c] rounded-2xl overflow-hidden shadow-lg mb-4 video-player-shadow relative">
 
-        window.addEventListener('load', () => {
-            fetchMatches();
-            setInterval(fetchMatches, 300000);
-        });
-    </script>
+                        <div class="loading-overlay" id="loadingOverlay">
+
+                            <div class="spinner"></div>
+
+                            <span class="loading-text">Please Wait...</span>
+
+                        </div>
+
+                        <iframe allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full" frameborder="0" id="mainVideoPlayer" src="" title="Main Video Player"></iframe>
+
+                    </div>
+
+                    <div class="bg-[#2a0322] p-4 rounded-xl shadow-lg mb-4 video-details-shadow">
+
+                        <h1 class="text-2xl font-bold text-white mb-4" id="matchTitle">🔴 Select a Match</h1>
+
+                        <div class="flex items-center justify-between">
+
+                            <div class="flex items-center">
+
+                                <img alt="Channel Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-[#5a064b]" onerror="this.onerror=null;this.src='https://placehold.co/40x40/5a064b/ffffff?text=C';" src="https://i.postimg.cc/bJTrv4Xx/letter-b.png" />
+
+                                <div class="flex flex-col">
+
+                                    <p class="font-semibold text-lg text-white">BinTv.fun</p>
+
+                                </div>
+
+                            </div>
+
+                            <button class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full animated-button">
+
+                                <p><span id="count">0</span> Viewers</p>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="lg:w-1/3">
+
+                    <div class="bg-[#2a0322] p-4 rounded-xl shadow-lg flex flex-col live-chat-shadow">
+
+                        <div class="flex-grow rounded-lg overflow-hidden bg-[#1f0119] border border-[#3a042f]">
+
+                            <iframe allowfullscreen class="w-full h-full" frameborder="0" src="https://thisisliechatf.netlify.app/"></iframe>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <hr class="border-t border-[#3a042f] mt-6 w-full mx-auto" />
+
+        </div>
+
+    </main>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+    <script>
+
+        const id = 'fancodelivehejeje';
+
+        const viewerCountElement = document.getElementById('count');
+
+        const socket = io('wss://96-4.jdx3.org', {
+
+            query: { id }
+
+        });
+
+
+
+        socket.on('updateViewCount', (data) => {
+
+            if (data.id === id) {
+
+                viewerCountElement.textContent = data.viewCount;
+
+            }
+
+        });
+
+
+
+        const JSON_URL = 'https://raw.githubusercontent.com/Jitendraunatti/fancode/refs/heads/main/data/fancode.json';
+
+        const STREAM_PREFIX = 'https://anym3u8player.com/tv/video-player.php?url=https://mini.allinonereborn.site/sony/stream_proxy.php?url=';
+
+
+
+        let liveMatchSelected = false;
+
+
+
+        function loadVideo(videoUrl, isInitialLoad = false) {
+
+            const mainVideoPlayer = document.getElementById('mainVideoPlayer');
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            if (mainVideoPlayer && loadingOverlay) {
+
+                loadingOverlay.classList.add('active');
+
+                if (mainVideoPlayer._currentLoadHandler) {
+
+                    mainVideoPlayer.removeEventListener('load', mainVideoPlayer._currentLoadHandler);
+
+                }
+
+                const loadHandler = () => {
+
+                    loadingOverlay.classList.remove('active');
+
+                    mainVideoPlayer.removeEventListener('load', loadHandler);
+
+                    clearTimeout(timeoutId);
+
+                };
+
+                mainVideoPlayer._currentLoadHandler = loadHandler;
+
+                mainVideoPlayer.addEventListener('load', loadHandler);
+
+                const timeoutId = setTimeout(() => {
+
+                    loadingOverlay.classList.remove('active');
+
+                }, 2000);
+
+                const separator = videoUrl.includes('?') ? '&' : '?';
+
+                const autoplayParam = isInitialLoad ? 'autoplay=1' : 'autoplay=0';
+
+                mainVideoPlayer.src = `${videoUrl}${separator}${autoplayParam}&mute=1`;
+
+            } else {
+
+                console.error('Main video player or loading overlay not found.');
+
+            }
+
+        }
+
+
+
+        function createMatchCard(match) {
+
+            const card = document.createElement('div');
+
+            card.className = 'match-card animated-card';
+
+
+
+            const isLive = match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started';
+
+            const teams = match.title ? match.title.split(' vs ') : ['Team A', 'Team B'];
+
+
+
+            let actionButtonOrInfo = '';
+
+            if (isLive) {
+
+                actionButtonOrInfo = `
+
+                    <button class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full animated-button watch-live-btn" data-url="${match.adfree_stream || ''}" data-title="${match.title || 'Unknown Title'}">
+
+                        Watch Live
+
+                    </button>
+
+                `;
+
+            } else {
+
+                const startTime = match.startTime ? match.startTime : 'Date/Time not available';
+
+                actionButtonOrInfo = `
+
+                    <p class="upcoming-info">${startTime}</p>
+
+                `;
+
+            }
+
+
+
+            card.innerHTML = `
+
+                ${isLive ? '<div class="match-card-header"><div class="live-indicator"></div>Live</div>' : ''}
+
+                <img src="${match.image || 'https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found'}" alt="${match.title || 'Match Title'}" onerror="this.src='https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found';">
+
+                <div class="match-card-details">
+
+                    <h3 class="text-white">${match.title || 'Unknown Title'}</h3>
+
+                    ${teams.length === 2 ? `<p class="match-info">${teams.join(' vs ')}</p>` : ''}
+
+                </div>
+
+                ${actionButtonOrInfo}
+
+            `;
+
+            return card;
+
+        }
+
+
+
+        async function fetchMatches() {
+
+            const liveMatches = document.getElementById('liveMatches');
+
+            const upcomingMatches = document.getElementById('upcomingMatches');
+
+            const blurOverlay = document.getElementById('blurOverlay');
+
+            const matchTitle = document.getElementById('matchTitle');
+
+            const titleElement = document.querySelector('title');
+
+            const mainContent = document.getElementById('mainContent');
+
+
+
+            if (!liveMatchSelected) {
+
+                liveMatches.innerHTML = '<p class="text-gray-300">Loading live matches...</p>';
+
+                upcomingMatches.innerHTML = '<p class="text-gray-300">Loading upcoming matches...</p>';
+
+                mainContent.classList.add('main-blurred');
+
+                blurOverlay.style.display = 'flex';
+
+                blurOverlay.style.overflowY = 'auto'; // Ensure overlay is scrollable
+
+                document.body.style.overflow = 'hidden'; // Prevent body scrolling
+
+            } else {
+
+                mainContent.classList.remove('main-blurred');
+
+                mainContent.classList.add('main-scrollable');
+
+                blurOverlay.style.display = 'none';
+
+                document.body.style.overflow = 'auto'; // Allow body scrolling
+
+            }
+
+
+
+            try {
+
+                const response = await fetch(JSON_URL + '?t=' + new Date().getTime());
+
+                if (!response.ok) {
+
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+
+                }
+
+                const data = await response.json();
+
+                const matches = Array.isArray(data) ? data : data.matches || [];
+
+
+
+                liveMatches.innerHTML = '';
+
+                upcomingMatches.innerHTML = '';
+
+
+
+                const live = matches.filter(match => match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started');
+
+                const upcoming = matches.filter(match => match.status.toLowerCase() === 'not_started');
+
+
+
+                if (live.length === 0) {
+
+                    liveMatches.innerHTML = '<p class="text-gray-300">No live matches available.</p>';
+
+                } else {
+
+                    live.forEach(match => {
+
+                        liveMatches.appendChild(createMatchCard(match));
+
+                    });
+
+                }
+
+
+
+                if (upcoming.length === 0) {
+
+                    upcomingMatches.innerHTML = '<p class="text-gray-300">No upcoming matches available.</p>';
+
+                } else {
+
+                    upcoming.forEach(match => {
+
+                        upcomingMatches.appendChild(createMatchCard(match));
+
+                    });
+
+                }
+
+
+
+                if (!liveMatchSelected) {
+
+                    blurOverlay.style.display = 'flex';
+
+                    blurOverlay.style.overflowY = 'auto'; // Re-ensure scrollability
+
+                    matchTitle.textContent = '🔴 Select a Match';
+
+                    titleElement.textContent = 'Fancode Matches Live';
+
+                    mainContent.classList.add('main-blurred');
+
+                    document.body.style.overflow = 'hidden';
+
+                }
+
+
+
+                // Force layout recalculation to ensure scrolling
+
+                blurOverlay.style.height = 'auto';
+
+                blurOverlay.style.minHeight = '100vh';
+
+                setTimeout(() => {
+
+                    blurOverlay.scrollTop = 0; // Reset scroll position
+
+                }, 0);
+
+
+
+                document.querySelectorAll('.watch-live-btn').forEach(button => {
+
+                    button.addEventListener('click', () => {
+
+                        const rawUrl = button.getAttribute('data-url');
+
+                        const title = button.getAttribute('data-title');
+
+                        if (rawUrl) {
+
+                            const fullUrl = `${STREAM_PREFIX}${encodeURIComponent(rawUrl)}`;
+
+                            blurOverlay.style.display = 'none';
+
+                            mainContent.classList.remove('main-blurred');
+
+                            mainContent.classList.add('main-scrollable');
+
+                            liveMatchSelected = true;
+
+                            document.body.style.overflow = 'auto';
+
+                            loadVideo(fullUrl, true);
+
+                            titleElement.textContent = title;
+
+                            matchTitle.textContent = `🔴 ${title}`;
+
+                        }
+
+                    });
+
+                });
+
+            } catch (error) {
+
+                console.error('Error fetching matches:', error);
+
+                liveMatches.innerHTML = '<p class="error-message">Failed to load live matches. Please try again later.</p>';
+
+                upcomingMatches.innerHTML = '<p class="error-message">Failed to load upcoming matches. Please try again later.</p>';
+
+                blurOverlay.style.display = 'flex';
+
+                blurOverlay.style.overflowY = 'auto';
+
+                mainContent.classList.add('main-blurred');
+
+                document.body.style.overflow = 'hidden';
+
+                // Force layout recalculation
+
+                blurOverlay.style.height = 'auto';
+
+                blurOverlay.style.minHeight = '100vh';
+
+                setTimeout(() => {
+
+                    blurOverlay.scrollTop = 0;
+
+                }, 0);
+
+            }
+
+        }
+
+
+
+        window.addEventListener('load', () => {
+
+            fetchMatches();
+
+            setInterval(fetchMatches, 300000);
+
+        });
+
+    </script>
+
+    <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
 </body>
+
 </html>
