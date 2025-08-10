@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Fancode Matches</title>
+    <title>Fancode - Match Selection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -36,22 +36,15 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh; /* Ensure full viewport height */
+            min-height: 100vh;
             background: rgba(21, 0, 16, 0.9);
             z-index: 999;
             display: flex;
             flex-direction: column;
             gap: 1rem;
             padding: 2rem;
-            overflow-y: auto; /* Enable scrolling */
+            overflow-y: auto;
             box-sizing: border-box;
-        }
-        .animated-card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-        .animated-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(90, 6, 75, 0.7);
         }
         .match-card {
             background: #2a0322;
@@ -65,6 +58,11 @@
             box-sizing: border-box;
             overflow: hidden;
             justify-content: space-between;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .match-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(90, 6, 75, 0.7);
         }
         .match-card-header {
             display: flex;
@@ -133,9 +131,12 @@
             background-color: #ff4d4d;
             color: white;
             border: none;
+            transition: all 0.3s ease-in-out;
         }
         .match-card button:hover {
-            background-color: #e03e3e;
+            background-color: #e63939;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
         .match-card .upcoming-info {
             font-size: 0.9rem;
@@ -159,28 +160,6 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             width: 100%;
-            min-height: 100%; /* Ensure container can expand */
-        }
-        @media (min-width: 1024px) {
-            .matches-container {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .match-card {
-                height: 300px;
-            }
-            .match-card img {
-                height: 140px;
-            }
-            .match-card h3 {
-                font-size: 1.2rem;
-                -webkit-line-clamp: 3;
-                max-height: 4.0em;
-                min-height: 2.8em;
-            }
-            .match-card button {
-                font-size: 1rem;
-                padding: 0.7rem 1.4rem;
-            }
         }
         @media (max-width: 768px) {
             .blur-overlay {
@@ -203,6 +182,27 @@
                 padding: 0.5rem 1rem;
             }
         }
+        @media (min-width: 1024px) {
+            .matches-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .match-card {
+                height: 300px;
+            }
+            .match-card img {
+                height: 140px;
+            }
+            .match-card h3 {
+                font-size: 1.2rem;
+                -webkit-line-clamp: 3;
+                max-height: 4.0em;
+                min-height: 2.8em;
+            }
+            .match-card button {
+                font-size: 1rem;
+                padding: 0.7rem 1.4rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -211,7 +211,6 @@
         <div id="liveMatches" class="matches-container"></div>
         <h4 class="text-2xl font-bold text-white mt-6">Upcoming Matches</h4>
         <div id="upcomingMatches" class="matches-container"></div>
-        <div style="height: 100px;"></div> <!-- Spacer to ensure scrollability -->
     </div>
     <script>
         const JSON_URL = 'https://raw.githubusercontent.com/Jitendraunatti/fancode/refs/heads/main/data/fancode.json';
@@ -219,9 +218,11 @@
 
         function createMatchCard(match) {
             const card = document.createElement('div');
-            card.className = 'match-card animated-card';
+            card.className = 'match-card';
+
             const isLive = match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started';
             const teams = match.title ? match.title.split(' vs ') : ['Team A', 'Team B'];
+
             let actionButtonOrInfo = '';
             if (isLive) {
                 actionButtonOrInfo = `
@@ -235,6 +236,7 @@
                     <p class="upcoming-info">${startTime}</p>
                 `;
             }
+
             card.innerHTML = `
                 ${isLive ? '<div class="match-card-header"><div class="live-indicator"></div>Live</div>' : ''}
                 <img src="${match.image || 'https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found'}" alt="${match.title || 'Match Title'}" onerror="this.src='https://placehold.co/300x150/5a064b/ffffff?text=Image+Not+Found';">
@@ -251,11 +253,10 @@
             const liveMatches = document.getElementById('liveMatches');
             const upcomingMatches = document.getElementById('upcomingMatches');
             const blurOverlay = document.getElementById('blurOverlay');
+
             liveMatches.innerHTML = '<p class="text-gray-300">Loading live matches...</p>';
             upcomingMatches.innerHTML = '<p class="text-gray-300">Loading upcoming matches...</p>';
-            blurOverlay.style.display = 'flex';
-            blurOverlay.style.overflowY = 'auto';
-            document.body.style.overflow = 'hidden';
+
             try {
                 const response = await fetch(JSON_URL + '?t=' + new Date().getTime());
                 if (!response.ok) {
@@ -263,10 +264,13 @@
                 }
                 const data = await response.json();
                 const matches = Array.isArray(data) ? data : data.matches || [];
+
                 liveMatches.innerHTML = '';
                 upcomingMatches.innerHTML = '';
+
                 const live = matches.filter(match => match.status.toLowerCase() === 'live' || match.streamingStatus.toLowerCase() === 'started');
                 const upcoming = matches.filter(match => match.status.toLowerCase() === 'not_started');
+
                 if (live.length === 0) {
                     liveMatches.innerHTML = '<p class="text-gray-300">No live matches available.</p>';
                 } else {
@@ -274,6 +278,7 @@
                         liveMatches.appendChild(createMatchCard(match));
                     });
                 }
+
                 if (upcoming.length === 0) {
                     upcomingMatches.innerHTML = '<p class="text-gray-300">No upcoming matches available.</p>';
                 } else {
@@ -281,8 +286,13 @@
                         upcomingMatches.appendChild(createMatchCard(match));
                     });
                 }
-                blurOverlay.style.height = '100vh';
-                blurOverlay.scrollTop = 0;
+
+                blurOverlay.style.height = 'auto';
+                blurOverlay.style.minHeight = '100vh';
+                setTimeout(() => {
+                    blurOverlay.scrollTop = 0;
+                }, 0);
+
                 document.querySelectorAll('.watch-live-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const rawUrl = button.getAttribute('data-url');
@@ -297,8 +307,11 @@
                 console.error('Error fetching matches:', error);
                 liveMatches.innerHTML = '<p class="error-message">Failed to load live matches. Please try again later.</p>';
                 upcomingMatches.innerHTML = '<p class="error-message">Failed to load upcoming matches. Please try again later.</p>';
-                blurOverlay.style.height = '100vh';
-                blurOverlay.scrollTop = 0;
+                blurOverlay.style.height = 'auto';
+                blurOverlay.style.minHeight = '100vh';
+                setTimeout(() => {
+                    blurOverlay.scrollTop = 0;
+                }, 0);
             }
         }
 
@@ -307,7 +320,5 @@
             setInterval(fetchMatches, 300000);
         });
     </script>
-    <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
 </body>
 </html>
-
