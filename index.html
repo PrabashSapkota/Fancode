@@ -205,7 +205,7 @@
 
     <script>
         const JSON_URL = 'https://raw.githubusercontent.com/Jitendraunatti/fancode/refs/heads/main/data/fancode.json';
-        const STREAM_PREFIX = 'https://playerhobintvko111.netlify.app/?url=https://sonta.allinonereborn.xyz/sony/stream_proxy.php?url=';
+        const STREAM_PREFIX = 'https://anym3u8player.com/tv/video-player.php?url=https://mini.allinonereborn.site/sony/stream_proxy.php?url=';
 
         function createMatchCard(match) {
             const card = document.createElement('div');
@@ -270,15 +270,22 @@
                     upcoming.forEach(match => upcomingMatches.appendChild(createMatchCard(match)));
                 }
                 
-                // This is the corrected event listener block
                 document.querySelectorAll('.watch-live-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const rawUrl = button.getAttribute('data-url');
                         const title = button.getAttribute('data-title');
+                        
+                        // Check if both URL and title are valid before redirecting
                         if (rawUrl && title) {
+                            // Construct the full video URL using the STREAM_PREFIX
                             const fullUrl = `${STREAM_PREFIX}${encodeURIComponent(rawUrl)}`;
+                            
                             // Redirect to player.html with the video URL and title as query parameters
                             window.location.href = `player.html?videoUrl=${encodeURIComponent(fullUrl)}&title=${encodeURIComponent(title)}`;
+                        } else {
+                            // Optionally, handle the case where data is missing
+                            console.error('Missing video URL or title for this match.');
+                            alert('Sorry, the video stream for this match is unavailable.');
                         }
                     });
                 });
